@@ -24,7 +24,8 @@ export interface Category {
   group: string;
   balance: number;
   previousBalance?: number;
-  icon: React.FC<{ className?: string }>;
+  // FIX: Allow style prop for category icons.
+  icon: React.FC<{ className?: string; style?: React.CSSProperties }>;
   color: string;
 }
 

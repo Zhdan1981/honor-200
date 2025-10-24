@@ -15,7 +15,7 @@ interface HomeScreenProps {
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ budgetHook, onSelectCategory, theme, toggleTheme }) => {
-  const { categories, totalBalance, isLoading, addTransaction, updateCategoryBalance, undo, redo, canUndo, canRedo } = budgetHook;
+  const { categories, totalBalance, isLoading, addTransactions, updateCategoryBalance, undo, redo, canUndo, canRedo } = budgetHook;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastInfo, setToastInfo] = useState<{ message: string; type: 'undo' | 'redo' } | null>(null);
 
@@ -24,7 +24,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ budgetHook, onSelectCategory, t
   }
     
   const handleSaveTransaction = (data: NewTransactionData[]) => {
-    data.forEach(d => addTransaction(d));
+    addTransactions(data);
     setIsModalOpen(false);
   };
 

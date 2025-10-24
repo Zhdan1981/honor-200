@@ -58,38 +58,39 @@ const useBudget = () => {
     storageService.saveTransactions(newState.transactions);
   }, [history, historyIndex]);
 
-  const addTransaction = useCallback((newTransactionData: NewTransactionData) => {
-      const newTransaction: Transaction = {
-          ...newTransactionData,
-          id: `tx_${new Date().getTime()}_${Math.random()}`,
-          date: new Date().getTime(),
-      };
+  const addTransactions = useCallback((newTransactionsData: NewTransactionData[]) => {
+      if (newTransactionsData.length === 0) return;
 
-      const updatedTransactions = [...transactions, newTransaction];
-      
-      const updatedCategories = categories.map(cat => {
-          if (newTransaction.type === TransactionType.TRANSFER) {
-              if (cat.id === newTransaction.fromCategoryId) {
-                  return { ...cat, balance: cat.balance - newTransaction.amount };
-              }
-              if (cat.id === newTransaction.categoryId) {
-                  return { ...cat, balance: cat.balance + newTransaction.amount };
-              }
-          } else if (newTransaction.type === TransactionType.EXPENSE) {
-             const sourceCategoryId = newTransaction.fromCategoryId || newTransaction.categoryId;
-              if (cat.id === sourceCategoryId) {
-                  return { ...cat, balance: cat.balance - newTransaction.amount };
-              }
-          } else if (newTransaction.type === TransactionType.INCOME) {
-              if (cat.id === newTransaction.categoryId) {
-                  return { ...cat, balance: cat.balance + newTransaction.amount };
-              }
+      const newTransactions: Transaction[] = newTransactionsData.map((data, index) => ({
+        ...data,
+        id: `tx_${new Date().getTime()}_${index}_${Math.random()}`,
+        date: new Date().getTime(),
+      }));
+  
+      const balanceDeltas: { [key: string]: number } = {};
+      newTransactions.forEach(tx => {
+        if (tx.type === TransactionType.TRANSFER) {
+          if (tx.fromCategoryId) {
+            balanceDeltas[tx.fromCategoryId] = (balanceDeltas[tx.fromCategoryId] || 0) - tx.amount;
           }
-          return cat;
+          balanceDeltas[tx.categoryId] = (balanceDeltas[tx.categoryId] || 0) + tx.amount;
+        } else if (tx.type === TransactionType.EXPENSE) {
+          const sourceCategoryId = tx.fromCategoryId || tx.categoryId;
+          balanceDeltas[sourceCategoryId] = (balanceDeltas[sourceCategoryId] || 0) - tx.amount;
+        } else if (tx.type === TransactionType.INCOME) {
+          balanceDeltas[tx.categoryId] = (balanceDeltas[tx.categoryId] || 0) + tx.amount;
+        }
       });
-
+  
+      const updatedCategories = categories.map(cat => {
+        if (balanceDeltas[cat.id]) {
+          return { ...cat, balance: cat.balance + balanceDeltas[cat.id] };
+        }
+        return cat;
+      });
+  
+      const updatedTransactions = [...transactions, ...newTransactions];
       updateState({ categories: updatedCategories, transactions: updatedTransactions });
-
   }, [categories, transactions, updateState]);
 
   const updateCategoryBalance = useCallback((categoryId: string, newBalance: number) => {
@@ -134,7 +135,7 @@ const useBudget = () => {
   return {
     categories,
     transactions,
-    addTransaction,
+    addTransactions,
     updateCategoryBalance,
     totalBalance,
     isLoading,

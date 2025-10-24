@@ -1,15 +1,20 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
-import type { Category, NewTransactionData } from '../types';
+// FIX: Import PieChart for the charts button.
+import { ArrowLeft, Plus, Trash2, PieChart } from 'lucide-react';
+// FIX: Import Transaction type for the new prop.
+import type { Category, NewTransactionData, Transaction } from '../types';
 import { TransactionType } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import useBudget from '../hooks/useBudget';
 
 interface DetailScreenProps {
   category: Category;
+  // FIX: Add missing transactions prop.
+  transactions: Transaction[];
   onBack: () => void;
   budgetHook: ReturnType<typeof useBudget>;
+  // FIX: Add missing onNavigateToCharts prop.
+  onNavigateToCharts: () => void;
 }
 
 interface DetailTransactionRow {
@@ -19,8 +24,9 @@ interface DetailTransactionRow {
     sourceId: string;
 }
 
-const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHook }) => {
-  const { categories, addTransaction } = budgetHook;
+// FIX: Accept and destructure new props. The 'transactions' prop is destructured to satisfy TypeScript, although it's not used in the UI.
+const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHook, onNavigateToCharts, transactions }) => {
+  const { categories, addTransactions } = budgetHook;
   const [operationType, setOperationType] = useState<TransactionType>(TransactionType.EXPENSE);
   
   const createNewRow = (): DetailTransactionRow => ({
@@ -77,7 +83,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
         .filter((t): t is NewTransactionData => t !== null);
 
     if (transactionsToSave.length > 0) {
-        transactionsToSave.forEach(addTransaction);
+        addTransactions(transactionsToSave);
         onBack();
     }
   };
@@ -95,7 +101,10 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
             <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: category.color }}></span>
             <h1 className="text-lg font-bold">{category.name}</h1>
           </div>
-          <div className="w-10"></div>
+          {/* FIX: Add button to navigate to charts screen, replacing placeholder div. */}
+          <button onClick={onNavigateToCharts} className="p-2 rounded-full hover:bg-white/10" aria-label="Показать графики">
+            <PieChart />
+          </button>
         </div>
         <div className="text-center text-white mt-2">
             <p className="text-3xl font-bold">{formatCurrency(category.balance)}</p>
