@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { ArrowLeft, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import type { Category, Transaction } from '../types';
@@ -16,10 +15,10 @@ interface CategoryChartsScreenProps {
 }
 
 const ChartStatCard: React.FC<{ icon: React.ElementType, title: string, value: string, colorClass: string }> = ({ icon: Icon, title, value, colorClass }) => (
-    <div className="bg-black/20 p-4 rounded-lg flex items-center text-white">
+    <div className="bg-card-hover p-4 rounded-lg flex items-center text-text-primary">
         <Icon className={`w-8 h-8 mr-3 ${colorClass}`} />
         <div>
-            <p className="text-sm opacity-80">{title}</p>
+            <p className="text-sm text-text-secondary">{title}</p>
             <p className="font-bold text-lg">{value}</p>
         </div>
     </div>
@@ -43,7 +42,7 @@ const CategoryChartsScreen: React.FC<CategoryChartsScreenProps> = ({ category, t
   const outflowTransactions = transactions.filter(t => (t.type === TransactionType.EXPENSE && t.fromCategoryId === category.id) || (t.type === TransactionType.TRANSFER && t.fromCategoryId === category.id) || (t.type === TransactionType.EXPENSE && t.categoryId === category.id && !t.fromCategoryId) );
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white">
+    <div className="flex flex-col h-screen bg-bg-primary text-text-primary">
       <header className="px-4 py-3 shadow-md sticky top-0 z-10" style={{ backgroundColor: category.color }}>
         <div className="flex items-center text-white">
           <button onClick={onBack} className="p-2 rounded-full hover:bg-white/20">
@@ -56,20 +55,20 @@ const CategoryChartsScreen: React.FC<CategoryChartsScreenProps> = ({ category, t
         </div>
       </header>
 
-      <main className="flex-grow overflow-y-auto">
+      <main className="flex-grow overflow-y-auto no-scrollbar">
         <div className="space-y-8 p-4">
             <div className="grid grid-cols-2 gap-4">
                 <ChartStatCard icon={ArrowUpCircle} title="Всего поступлений" value={formatCurrency(categoryStats.inflows)} colorClass="text-green-400" />
                 <ChartStatCard icon={ArrowDownCircle} title="Всего списаний" value={formatCurrency(categoryStats.outflows)} colorClass="text-red-400" />
             </div>
 
-            <div className="bg-[#1C1C1E] p-4 rounded-xl">
+            <div className="bg-card-primary p-4 rounded-xl">
                 <h3 className="text-lg font-semibold mb-4 text-center">Динамика баланса</h3>
                 <BalanceLineChart transactions={transactions} category={category} />
             </div>
 
             {outflowTransactions.length > 0 && (
-              <div className="bg-[#1C1C1E] p-4 rounded-xl">
+              <div className="bg-card-primary p-4 rounded-xl">
                   <h3 className="text-lg font-semibold mb-4 text-center">Куда ушли деньги</h3>
                   <ExpensePieChart 
                       transactions={outflowTransactions} 

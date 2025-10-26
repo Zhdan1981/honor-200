@@ -2,29 +2,30 @@ import React, { useMemo, useState } from 'react';
 import ExpensePieChart from '../components/charts/ExpensePieChart';
 import IncomeExpenseBarChart from '../components/charts/IncomeExpenseBarChart';
 import useBudget from '../hooks/useBudget';
-import { TransactionType } from '../types';
+import { TransactionType, type Settings } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import { TrendingUp, TrendingDown, Scale } from 'lucide-react';
 
 interface GlobalChartsScreenProps {
   budgetHook: ReturnType<typeof useBudget>;
+  settings: Settings;
 }
 
 type TimePeriod = 'week' | 'month' | 'year' | 'all';
 
 const StatCard: React.FC<{ icon: React.ElementType, title: string, value: string, color: string }> = ({ icon: Icon, title, value, color }) => (
-    <div className="bg-white dark:bg-[#1C1C1E] p-4 rounded-xl shadow-md flex items-center">
+    <div className="bg-card-primary p-4 rounded-xl shadow-md flex items-center">
         <div className={`p-3 rounded-full mr-4`} style={{ backgroundColor: `${color}20`}}>
             <Icon size={24} style={{ color }}/>
         </div>
         <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">{value}</p>
+            <p className="text-sm text-text-secondary">{title}</p>
+            <p className="text-xl font-bold text-text-primary">{value}</p>
         </div>
     </div>
 );
 
-const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook }) => {
+const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook, settings }) => {
   const { transactions, categories } = budgetHook;
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
@@ -82,8 +83,8 @@ const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook }) =
       onClick={() => setTimePeriod(period)}
       className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
         timePeriod === period
-          ? 'bg-blue-500 text-white'
-          : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+          ? 'bg-btn-primary-bg text-btn-primary-text'
+          : 'bg-input-bg text-text-primary hover:bg-card-hover'
       }`}
     >
       {label}
@@ -91,14 +92,14 @@ const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook }) =
   );
   
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-black">
-      <header className="px-4 py-5 text-center sticky top-0 z-10 bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-lg font-bold text-gray-900 dark:text-white">Финансовый обзор</h1>
+    <div className="flex flex-col h-screen bg-bg-primary">
+      <header className="px-4 py-5 text-center sticky top-0 z-10 bg-card-primary/80 backdrop-blur-md border-b border-border-primary">
+        <h1 className="text-lg font-bold text-text-primary">Финансовый обзор</h1>
       </header>
 
-      <main className="flex-grow overflow-y-auto pb-20 p-4">
+      <main className="flex-grow overflow-y-auto pb-20 p-4 no-scrollbar">
         <div className="space-y-6">
-            <div className="bg-white dark:bg-[#1C1C1E] p-4 rounded-xl shadow-md space-y-4">
+            <div className="bg-card-primary p-4 rounded-xl shadow-md space-y-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <TimePeriodButton period="week" label="Неделя" />
                     <TimePeriodButton period="month" label="Месяц" />
@@ -109,7 +110,7 @@ const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook }) =
                      <select
                         value={selectedCategoryId}
                         onChange={(e) => setSelectedCategoryId(e.target.value)}
-                        className="w-full p-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white"
+                        className="w-full p-2.5 bg-input-bg border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring text-sm text-text-primary"
                     >
                         <option value="all">Все категории</option>
                         {categories.map(cat => (
@@ -125,8 +126,8 @@ const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook }) =
                 <StatCard icon={Scale} title="Чистый доход" value={formatCurrency(stats.netIncome)} color={stats.netIncome >= 0 ? '#3B82F6' : '#EF4444'} />
             </div>
 
-            <div className="bg-white dark:bg-[#1C1C1E] p-4 rounded-xl shadow-md">
-                <h3 className="text-lg font-semibold mb-4 text-center text-gray-900 dark:text-white">Доходы vs. Расходы</h3>
+            <div className="bg-card-primary p-4 rounded-xl shadow-md">
+                <h3 className="text-lg font-semibold mb-4 text-center text-text-primary">Доходы vs. Расходы</h3>
                 <IncomeExpenseBarChart 
                     income={stats.totalIncome} 
                     expense={stats.totalExpense} 
@@ -134,8 +135,8 @@ const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook }) =
             </div>
             
             {selectedCategoryId === 'all' && (
-                <div className="bg-white dark:bg-[#1C1C1E] p-4 rounded-xl shadow-md">
-                    <h3 className="text-lg font-semibold mb-4 text-center text-gray-900 dark:text-white">Расходы по категориям</h3>
+                <div className="bg-card-primary p-4 rounded-xl shadow-md">
+                    <h3 className="text-lg font-semibold mb-4 text-center text-text-primary">Расходы по категориям</h3>
                     <ExpensePieChart 
                         transactions={filteredTransactions} 
                         categories={categories}

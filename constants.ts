@@ -12,7 +12,8 @@ import {
     Fuel, 
     Package, 
     ShoppingBag,
-    Banknote
+    Banknote,
+    Shrimp
 } from 'lucide-react';
 import type { Category } from './types';
 
@@ -25,7 +26,7 @@ export const INITIAL_CATEGORIES: Omit<Category, 'balance'>[] = [
   { id: 'moi', name: 'Мои', group: 'Личные', icon: (props) => React.createElement(User, { ...iconProps, ...props }), color: '#34D399' },
   { id: 'nadia', name: 'Надя', group: 'Личные', icon: (props) => React.createElement(User, { ...iconProps, ...props }), color: '#F472B6' },
   { id: 'andrei', name: 'Андрей', group: 'Личные', icon: (props) => React.createElement(User, { ...iconProps, ...props }), color: '#EAB308' },
-  { id: 'sberbank', name: 'Сбербанк', group: 'Счета', icon: (props) => React.createElement(Banknote, { ...iconProps, ...props }), color: '#22C55E' },
+  { id: 'sberbank', name: 'Суши', group: 'Расходы', icon: (props) => React.createElement(Shrimp, { ...iconProps, ...props }), color: '#22C55E' },
   { id: 'otpusk', name: 'Отпуск', group: 'Общие', icon: (props) => React.createElement(Palmtree, { ...iconProps, ...props }), color: '#60A5FA' },
   { id: 'garage', name: 'Гараж', group: 'Расходы', icon: (props) => React.createElement(Car, { ...iconProps, ...props }), color: '#F97316' },
   { id: 'zhkh', name: 'ЖКХ', group: 'Расходы', icon: (props) => React.createElement(Home, { ...iconProps, ...props }), color: '#F59E0B' },

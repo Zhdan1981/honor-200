@@ -37,3 +37,8 @@ export interface NewTransactionData {
     categoryId: string;
     fromCategoryId?: string;
 }
+
+export interface Settings {
+  bottomNavOpacity: number;
+  themeId: string;
+}

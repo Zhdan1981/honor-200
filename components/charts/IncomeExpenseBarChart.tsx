@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { formatCurrency } from '../../utils/formatters';
@@ -17,7 +16,7 @@ const IncomeExpenseBarChart: React.FC<IncomeExpenseBarChartProps> = ({ income, e
   const CustomTooltip = ({ active, payload, label }: any) => {
       if (active && payload && payload.length) {
           return (
-          <div className="bg-gray-800 text-white p-3 rounded-lg border border-gray-700">
+          <div className="bg-card-hover text-text-primary p-3 rounded-lg border border-border-primary">
               <p className="font-bold">{label}</p>
               <p style={{ color: payload[0].payload.color }}>
               {`Сумма: ${formatCurrency(payload[0].value)}`}
@@ -40,9 +39,9 @@ const IncomeExpenseBarChart: React.FC<IncomeExpenseBarChartProps> = ({ income, e
         }}
         barGap={50}
       >
-        <XAxis dataKey="name" tick={{ fill: '#A0AEC0' }} axisLine={false} tickLine={false} />
-        <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fill: '#A0AEC0' }} axisLine={false} tickLine={false} width={100}/>
-        <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255, 255, 255, 0.1)'}}/>
+        <XAxis dataKey="name" tick={{ fill: 'rgb(var(--color-text-secondary))' }} axisLine={false} tickLine={false} />
+        <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fill: 'rgb(var(--color-text-secondary))' }} axisLine={false} tickLine={false} width={100}/>
+        <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgb(var(--color-card-hover))'}}/>
         <Bar dataKey="value" radius={[8, 8, 0, 0]}>
              {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { Category } from '../types';
 import { formatCurrency } from '../utils/formatters';
@@ -46,7 +45,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onSelect, onUpdat
 
     return (
         <div
-            className="flex items-center p-4 mb-3 mx-4 bg-white dark:bg-[#1C1C1E] rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors shadow-sm"
+            className="flex items-center p-4 mb-3 mx-4 bg-card-primary rounded-xl cursor-pointer hover:bg-card-hover transition-colors shadow-sm"
             onClick={() => !isEditing && onSelect(category)}
         >
             <div
@@ -56,7 +55,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onSelect, onUpdat
                 <category.icon className="h-6 w-6" style={{ color: category.color }} />
             </div>
             <div className="flex-grow">
-                <h3 className="font-semibold text-gray-900 dark:text-white text-base">{category.name}</h3>
+                <h3 className="font-semibold text-text-primary text-base">{category.name}</h3>
                 <p className="text-sm" style={{ color: category.color }}>{category.group}</p>
             </div>
             <div className="text-right">
@@ -70,11 +69,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, onSelect, onUpdat
                             onBlur={handleSave}
                             onKeyDown={handleKeyDown}
                             onClick={(e) => e.stopPropagation()}
-                            className="font-bold text-gray-800 dark:text-gray-200 text-base text-right bg-gray-100 dark:bg-gray-700 rounded-md p-1 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="font-bold text-text-primary text-base text-right bg-input-bg rounded-md p-1 w-32 focus:outline-none focus:ring-2 focus:ring-focus-ring"
                         />
                     ) : (
                         <p 
-                            className="font-bold text-gray-800 dark:text-gray-200 text-base p-1 rounded-md"
+                            className="font-bold text-text-primary text-base p-1 rounded-md"
                             onClick={handleBalanceClick}
                         >
                             {formatCurrency(category.balance)}

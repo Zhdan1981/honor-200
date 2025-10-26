@@ -10,8 +10,8 @@ interface UndoRedoControlsProps {
 
 const UndoRedoControls: React.FC<UndoRedoControlsProps> = ({ onUndo, onRedo, canUndo, canRedo }) => {
   const buttonClass = "p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-  const enabledClass = "text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800";
-  const disabledClass = "text-gray-300 dark:text-gray-600";
+  const enabledClass = "text-text-secondary hover:bg-card-hover";
+  const disabledClass = "text-text-secondary/50";
 
   return (
     <div className="flex items-center gap-2">

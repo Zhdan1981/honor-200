@@ -35,9 +35,9 @@ const UndoRedoToast: React.FC<UndoRedoToastProps> = ({ message, type, onClose, o
 
   return (
     <div
-      className={`fixed bottom-24 left-1/2 -translate-x-1/2 w-[90%] max-w-md p-4 rounded-xl shadow-lg flex items-center justify-between text-white transition-all duration-300 ease-in-out ${
+      className={`fixed bottom-24 left-1/2 -translate-x-1/2 w-[90%] max-w-md p-4 rounded-xl shadow-lg flex items-center justify-between text-text-primary transition-all duration-300 ease-in-out ${
         isVisible ? 'transform translate-y-0 opacity-100' : 'transform translate-y-8 opacity-0'
-      } bg-[#2A2A2A] border border-gray-700`}
+      } bg-card-primary border border-border-primary`}
     >
       <div className="flex items-center">
         <p className="mr-4 text-sm">{message}</p>
@@ -45,12 +45,12 @@ const UndoRedoToast: React.FC<UndoRedoToastProps> = ({ message, type, onClose, o
       <div className="flex items-center gap-2">
         <button
           onClick={handleActionClick}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-md bg-white/10 hover:bg-white/20"
+          className="flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-md bg-card-hover hover:opacity-80"
         >
           <Icon size={16} />
           {actionText}
         </button>
-        <button onClick={handleClose} className="p-1.5 rounded-full hover:bg-white/20">
+        <button onClick={handleClose} className="p-1.5 rounded-full hover:bg-card-hover">
           <X size={18} />
         </button>
       </div>

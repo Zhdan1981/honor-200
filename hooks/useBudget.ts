@@ -1,4 +1,7 @@
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import React from 'react';
+import { Banknote } from 'lucide-react';
 import type { Category, Transaction, NewTransactionData } from '../types';
 import { TransactionType } from '../types';
 import { storageService } from '../services/storage';
@@ -18,12 +21,22 @@ const useBudget = () => {
   const [history, setHistory] = useState<BudgetState[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
+  const initialCategoryMap = useMemo(() => new Map(INITIAL_CATEGORIES.map(c => [c.id, c])), []);
+
   useEffect(() => {
     const loadedCategories = storageService.getCategories();
     const loadedTransactions = storageService.getTransactions();
 
     if (loadedCategories && loadedTransactions) {
-      const initialState = { categories: loadedCategories, transactions: loadedTransactions };
+      const hydratedCategories = loadedCategories.map(storedCat => {
+        const initialCat = initialCategoryMap.get(storedCat.id);
+        return {
+          ...storedCat,
+          icon: initialCat ? initialCat.icon : (props) => React.createElement(Banknote, { ...props }),
+        };
+      });
+
+      const initialState = { categories: hydratedCategories, transactions: loadedTransactions };
       setCategories(initialState.categories);
       setTransactions(initialState.transactions);
       setHistory([initialState]);
@@ -43,7 +56,7 @@ const useBudget = () => {
       setHistoryIndex(0);
     }
     setIsLoading(false);
-  }, []);
+  }, [initialCategoryMap]);
 
   const updateState = useCallback((newState: BudgetState) => {
     const newHistory = history.slice(0, historyIndex + 1);

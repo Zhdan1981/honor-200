@@ -91,10 +91,10 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
   const sourceCategories = categories.filter(c => c.id !== category.id);
 
   return (
-    <div className="flex flex-col h-screen bg-[#0A192F]">
-      <header className="px-4 py-3 sticky top-0 z-10 bg-[#0A192F]">
-        <div className="flex items-center text-white">
-          <button onClick={onBack} className="p-2 rounded-full hover:bg-white/10">
+    <div className="flex flex-col h-screen bg-bg-primary">
+      <header className="px-4 py-3 sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-md">
+        <div className="flex items-center text-text-primary">
+          <button onClick={onBack} className="p-2 rounded-full hover:bg-card-hover">
             <ArrowLeft />
           </button>
           <div className="text-center flex-grow flex items-center justify-center">
@@ -102,24 +102,24 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
             <h1 className="text-lg font-bold">{category.name}</h1>
           </div>
           {/* FIX: Add button to navigate to charts screen, replacing placeholder div. */}
-          <button onClick={onNavigateToCharts} className="p-2 rounded-full hover:bg-white/10" aria-label="Показать графики">
+          <button onClick={onNavigateToCharts} className="p-2 rounded-full hover:bg-card-hover" aria-label="Показать графики">
             <PieChart />
           </button>
         </div>
-        <div className="text-center text-white mt-2">
+        <div className="text-center text-text-primary mt-2">
             <p className="text-3xl font-bold">{formatCurrency(category.balance)}</p>
         </div>
       </header>
 
-      <main className="flex-grow overflow-y-auto p-4 text-white">
+      <main className="flex-grow overflow-y-auto p-4 text-text-primary no-scrollbar">
         <div className="space-y-4">
             <div>
-                <label htmlFor="op_type" className="block text-sm font-medium text-gray-400 mb-1">Тип операции</label>
+                <label htmlFor="op_type" className="block text-sm font-medium text-text-secondary mb-1">Тип операции</label>
                 <select 
                     id="op_type"
                     value={operationType}
                     onChange={(e) => setOperationType(e.target.value as TransactionType)}
-                    className="w-full p-3 bg-[#1E2A47] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 bg-input-bg border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
                 >
                     <option value={TransactionType.EXPENSE}>Расход</option>
                     <option value={TransactionType.INCOME}>Доход</option>
@@ -128,11 +128,11 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
             </div>
             
             {rows.map((row, index) => (
-                <div key={row.id} className="p-4 bg-[#1C1C1E] border border-gray-700 rounded-xl space-y-4 relative">
+                <div key={row.id} className="p-4 bg-card-primary border border-border-primary rounded-xl space-y-4 relative">
                     <div className="flex justify-between items-center">
-                        <p className="font-semibold text-gray-300">Транзакция {index + 1}</p>
+                        <p className="font-semibold text-text-secondary">Транзакция {index + 1}</p>
                         {rows.length > 1 && (
-                            <button onClick={() => removeRow(index)} className="p-1 text-gray-500 hover:text-red-500">
+                            <button onClick={() => removeRow(index)} className="p-1 text-text-secondary hover:text-red-500">
                                 <Trash2 size={16}/>
                             </button>
                         )}
@@ -142,25 +142,25 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
                         placeholder="Сумма"
                         value={row.amount}
                         onChange={(e) => handleRowChange(index, 'amount', e.target.value)}
-                        className="w-full p-3 bg-[#1E2A47] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 bg-input-bg border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
                     />
                     <input 
                         type="text" 
                         placeholder="Описание (необязательно)"
                         value={row.note}
                         onChange={(e) => handleRowChange(index, 'note', e.target.value)}
-                        className="w-full p-3 bg-[#1E2A47] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 bg-input-bg border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
                     />
                      {(operationType === TransactionType.EXPENSE || operationType === TransactionType.TRANSFER) && (
                          <div>
-                            <label htmlFor={`source-${row.id}`} className="block text-sm font-medium text-gray-400 mb-1">
+                            <label htmlFor={`source-${row.id}`} className="block text-sm font-medium text-text-secondary mb-1">
                                 {operationType === TransactionType.EXPENSE ? 'Откуда взять (необязательно)' : 'Откуда взять'}
                             </label>
                             <select 
                                 id={`source-${row.id}`}
                                 value={row.sourceId}
                                 onChange={(e) => handleRowChange(index, 'sourceId', e.target.value)}
-                                className="w-full p-3 bg-[#1E2A47] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full p-3 bg-input-bg border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             >
                                 <option value="">{operationType === TransactionType.EXPENSE ? `С кошелька "${category.name}"` : 'Выберите источник'}</option>
                                 {sourceCategories.map(cat => (
@@ -172,15 +172,15 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
                 </div>
             ))}
 
-            <button onClick={addRow} className="w-full flex items-center justify-center p-2.5 border-2 border-dashed rounded-lg border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white">
+            <button onClick={addRow} className="w-full flex items-center justify-center p-2.5 border-2 border-dashed rounded-lg border-border-primary text-text-secondary hover:bg-card-hover hover:text-text-primary">
                 <Plus size={16} className="mr-2" /> Добавить ещё транзакцию
             </button>
         </div>
       </main>
       
       <footer className="p-4 grid grid-cols-2 gap-4">
-        <button onClick={handleAdd} className="w-full px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors">Добавить</button>
-        <button onClick={onBack} className="w-full px-4 py-3 bg-[#1E2A47] text-gray-300 font-semibold rounded-lg hover:bg-[#2a3a5e] transition-colors">Закрыть</button>
+        <button onClick={handleAdd} className="w-full px-4 py-3 bg-btn-primary-bg text-btn-primary-text font-semibold rounded-lg hover:opacity-90 transition-opacity">Добавить</button>
+        <button onClick={onBack} className="w-full px-4 py-3 bg-card-hover text-text-secondary font-semibold rounded-lg hover:opacity-90 transition-opacity">Закрыть</button>
       </footer>
     </div>
   );
