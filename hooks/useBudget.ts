@@ -5,7 +5,7 @@ import type { Category, Transaction, NewTransactionData } from '../types';
 import { TransactionType } from '../types';
 import { INITIAL_CATEGORIES, INITIAL_BALANCES } from '../constants';
 import { db } from '../firebase';
-import { collection, onSnapshot, doc, writeBatch, getDocs, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import { collection, onSnapshot, doc, writeBatch, query, orderBy } from 'firebase/firestore';
 
 const useBudget = (userId: string | undefined) => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -14,18 +14,34 @@ const useBudget = (userId: string | undefined) => {
 
   const initialCategoryMap = useMemo(() => new Map(INITIAL_CATEGORIES.map(c => [c.id, c])), []);
 
+  // Effect for local/anonymous state
+  useEffect(() => {
+    if (!userId) {
+      setIsLoading(true);
+      const localInitialCategories = INITIAL_CATEGORIES.map(cat => ({
+        ...cat,
+        balance: INITIAL_BALANCES[cat.id] || 0,
+      }));
+      setCategories(localInitialCategories as Category[]);
+      setTransactions([]);
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+
   const seedInitialData = useCallback(async (uid: string) => {
       const batch = writeBatch(db);
       const categoriesCollectionRef = collection(db, 'users', uid, 'categories');
       
-      INITIAL_CATEGORIES.forEach(cat => {
+      INITIAL_CATEGORIES.forEach((cat, index) => {
           const docRef = doc(categoriesCollectionRef, cat.id);
           const newCategory = {
               id: cat.id,
               name: cat.name,
               group: cat.group,
               color: cat.color,
-              balance: INITIAL_BALANCES[cat.id] || 0
+              balance: INITIAL_BALANCES[cat.id] || 0,
+              order: index,
           };
           batch.set(docRef, newCategory);
       });
@@ -33,21 +49,20 @@ const useBudget = (userId: string | undefined) => {
       await batch.commit();
   }, []);
 
+  // Effect for Firestore state (when logged in)
   useEffect(() => {
     if (!userId) {
-      setCategories([]);
-      setTransactions([]);
-      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
 
     const categoriesCollectionRef = collection(db, 'users', userId, 'categories');
+    const categoriesQuery = query(categoriesCollectionRef, orderBy('order'));
     const transactionsCollectionRef = collection(db, 'users', userId, 'transactions');
     
-    const unsubscribeCategories = onSnapshot(categoriesCollectionRef, (snapshot) => {
-        if (snapshot.empty) {
+    const unsubscribeCategories = onSnapshot(categoriesQuery, (snapshot) => {
+        if (snapshot.empty && !snapshot.metadata.hasPendingWrites) {
             seedInitialData(userId);
         } else {
             const fetchedCategories = snapshot.docs.map(doc => {
@@ -75,15 +90,11 @@ const useBudget = (userId: string | undefined) => {
   }, [userId, initialCategoryMap, seedInitialData]);
 
   const addTransactions = useCallback(async (newTransactionsData: NewTransactionData[]) => {
-      if (newTransactionsData.length === 0 || !userId) return;
-
-      const batch = writeBatch(db);
-      const transactionsCollectionRef = collection(db, 'users', userId, 'transactions');
-      const categoriesCollectionRef = collection(db, 'users', userId, 'categories');
+      if (newTransactionsData.length === 0) return;
 
       const balanceDeltas: { [key: string]: number } = {};
 
-      newTransactionsData.forEach(data => {
+      const newTxs = newTransactionsData.map(data => {
         const txId = `tx_${new Date().getTime()}_${Math.random().toString(36).substr(2, 9)}`;
         const newTransaction: Transaction = {
           ...data,
@@ -91,9 +102,6 @@ const useBudget = (userId: string | undefined) => {
           date: new Date().getTime(),
         };
 
-        const txDocRef = doc(transactionsCollectionRef, txId);
-        batch.set(txDocRef, newTransaction);
-        
         // Calculate balance changes
         if (newTransaction.type === TransactionType.TRANSFER) {
           if (newTransaction.fromCategoryId) {
@@ -106,9 +114,33 @@ const useBudget = (userId: string | undefined) => {
         } else if (newTransaction.type === TransactionType.INCOME) {
           balanceDeltas[newTransaction.categoryId] = (balanceDeltas[newTransaction.categoryId] || 0) + newTransaction.amount;
         }
+        return newTransaction;
+      });
+
+      // LOCAL STATE LOGIC
+      if (!userId) {
+          setTransactions(prevTxs => [...prevTxs, ...newTxs]);
+          setCategories(prevCats => {
+              return prevCats.map(cat => {
+                  if (balanceDeltas[cat.id]) {
+                      return { ...cat, balance: cat.balance + balanceDeltas[cat.id] };
+                  }
+                  return cat;
+              });
+          });
+          return;
+      }
+
+      // FIRESTORE LOGIC
+      const batch = writeBatch(db);
+      const transactionsCollectionRef = collection(db, 'users', userId, 'transactions');
+      const categoriesCollectionRef = collection(db, 'users', userId, 'categories');
+
+      newTxs.forEach(tx => {
+        const txDocRef = doc(transactionsCollectionRef, tx.id);
+        batch.set(txDocRef, tx);
       });
       
-      // Apply balance changes
       for (const categoryId in balanceDeltas) {
           const category = categories.find(c => c.id === categoryId);
           if (category) {
@@ -123,12 +155,33 @@ const useBudget = (userId: string | undefined) => {
   }, [userId, categories]);
 
   const updateCategoryBalance = useCallback(async (categoryId: string, newBalance: number) => {
-    if (!userId) return;
+    if (!userId) {
+        setCategories(prevCats => prevCats.map(cat => cat.id === categoryId ? { ...cat, balance: newBalance } : cat));
+        return;
+    }
     const catDocRef = doc(db, 'users', userId, 'categories', categoryId);
     const batch = writeBatch(db);
     batch.update(catDocRef, { balance: newBalance });
     await batch.commit();
   }, [userId]);
+  
+  const updateCategoryOrder = useCallback(async (orderedCategories: Category[]) => {
+    const reordered = orderedCategories.map((c, i) => ({ ...c, order: i }));
+    setCategories(reordered);
+
+    if (!userId) return;
+
+    const batch = writeBatch(db);
+    const categoriesCollectionRef = collection(db, 'users', userId, 'categories');
+
+    reordered.forEach((category) => {
+      const catDocRef = doc(categoriesCollectionRef, category.id);
+      batch.update(catDocRef, { order: category.order });
+    });
+
+    await batch.commit();
+  }, [userId]);
+
 
   const totalBalance = useMemo(() => {
     return categories.reduce((sum, cat) => sum + cat.balance, 0);
@@ -139,6 +192,7 @@ const useBudget = (userId: string | undefined) => {
     transactions,
     addTransactions,
     updateCategoryBalance,
+    updateCategoryOrder,
     totalBalance,
     isLoading,
   };

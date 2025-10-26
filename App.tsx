@@ -10,7 +10,6 @@ import type { Category, NewTransactionData, Settings } from './types';
 import TransactionModal from './components/TransactionModal';
 import SettingsModal from './components/SettingsModal';
 import { themes } from './utils/themes';
-import AuthScreen from './screens/AuthScreen';
 import { auth } from './firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 
@@ -18,7 +17,6 @@ type Tab = 'budget' | 'history' | 'charts';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const budget = useBudget(user?.uid);
   const [activeTab, setActiveTab] = useState<Tab>('budget');
   const [view, setView] = useState<'main' | 'detail' | 'category_charts'>('main');
@@ -34,7 +32,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -107,13 +104,13 @@ const App: React.FC = () => {
   const renderMainView = () => {
       switch (activeTab) {
         case 'budget':
-          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} onLogout={handleLogout} settings={settings} />;
+          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} settings={settings} />;
         case 'history':
           return <HistoryScreen budgetHook={budget} settings={settings} />;
         case 'charts':
           return <GlobalChartsScreen budgetHook={budget} settings={settings} />;
         default:
-          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} onLogout={handleLogout} settings={settings} />;
+          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} settings={settings} />;
       }
   }
 
@@ -154,14 +151,6 @@ const App: React.FC = () => {
   };
   
   const renderApp = () => {
-    if (authLoading) {
-        return <div className="flex items-center justify-center min-h-screen text-text-secondary">Загрузка сессии...</div>;
-    }
-      
-    if (!user) {
-        return <AuthScreen />;
-    }
-      
     return (
       <>
         {renderContent()}
@@ -180,6 +169,8 @@ const App: React.FC = () => {
           onClose={() => setIsSettingsModalOpen(false)}
           settings={settings}
           onSettingsChange={setSettings}
+          user={user}
+          onLogout={handleLogout}
         />
       </>
     );

@@ -1,16 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import type { Settings } from '../types';
 import { themes } from '../utils/themes';
+import { auth } from '../firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, User } from 'firebase/auth';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   settings: Settings;
   onSettingsChange: (newSettings: Settings) => void;
+  user: User | null;
+  onLogout: () => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange, user, onLogout }) => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
   if (!isOpen) return null;
 
   const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,30 +37,37 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     });
   };
 
-  const ThemePreview: React.FC<{ theme: typeof themes[0], isSelected: boolean, onClick: () => void }> = ({ theme, isSelected, onClick }) => (
-    <div className="text-center">
-      <button
-        onClick={onClick}
-        className={`w-full h-16 rounded-lg border-2 transition-all flex items-stretch overflow-hidden ${
-          isSelected ? 'border-focus-ring ring-2 ring-focus-ring ring-offset-2 ring-offset-card-primary' : 'border-border-primary'
-        }`}
-        aria-label={`Выбрать тему ${theme.name}`}
-      >
-        <div className="w-1/2 h-full" style={{ backgroundColor: `rgb(${theme.colors['--color-background']})` }}></div>
-        <div className="w-1/2 h-full flex flex-col">
-            <div className="h-1/2 w-full" style={{ backgroundColor: `rgb(${theme.colors['--color-card']})` }}></div>
-            <div className="h-1/2 w-full" style={{ backgroundColor: `rgb(${theme.colors['--color-text-accent']})` }}></div>
-        </div>
-      </button>
-      <span className="text-xs mt-1.5 block text-text-secondary">{theme.name}</span>
-    </div>
-  );
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+      }
+      onClose(); // Close modal on successful login/signup
+    } catch (err) {
+      const authError = err as { code: string };
+      switch (authError.code) {
+        case 'auth/invalid-email': setError('Неверный формат email.'); break;
+        case 'auth/user-not-found':
+        case 'auth/wrong-password': setError('Неверный email или пароль.'); break;
+        case 'auth/email-already-in-use': setError('Этот email уже зарегистрирован.'); break;
+        case 'auth/weak-password': setError('Пароль должен содержать не менее 6 символов.'); break;
+        default: setError('Произошла ошибка. Попробуйте снова.'); break;
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
       <div className="bg-card-primary rounded-2xl shadow-xl w-[95%] max-w-md max-h-[90vh] flex flex-col text-text-primary">
         <div className="p-4 border-b border-border-primary flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Настройки приложения</h2>
+          <h2 className="text-lg font-semibold">Настройки</h2>
           <button onClick={onClose} className="p-1 rounded-full text-text-secondary hover:bg-card-hover">
             <X size={20} />
           </button>
@@ -73,22 +90,78 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
           </div>
 
           <div>
-            <h3 className="mb-3 text-sm font-medium text-text-secondary">Темы оформления</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {themes.map(theme => (
-                <ThemePreview 
-                    key={theme.id}
-                    theme={theme}
-                    isSelected={settings.themeId === theme.id}
-                    onClick={() => handleThemeChange(theme.id)}
-                />
-              ))}
-            </div>
+            <label htmlFor="theme-select" className="block mb-2 text-sm font-medium text-text-secondary">
+                Тема оформления
+            </label>
+            <select
+                id="theme-select"
+                value={settings.themeId}
+                onChange={(e) => handleThemeChange(e.target.value)}
+                className="w-full p-3 border-none rounded-lg bg-input-bg text-text-primary placeholder-text-secondary focus:ring-2 focus:ring-focus-ring"
+            >
+                {themes.map(theme => (
+                    <option key={theme.id} value={theme.id}>
+                        {theme.isDark ? '🌙' : '☀️'} {theme.name}
+                    </option>
+                ))}
+            </select>
           </div>
+          
+          <hr className="border-border-primary" />
+
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-text-secondary">Аккаунт</h3>
+            {user ? (
+              <div className="flex items-center justify-between bg-input-bg p-3 rounded-lg">
+                  <div>
+                      <p className="text-sm">Вы вошли как:</p>
+                      <p className="font-semibold text-text-primary">{user.email}</p>
+                  </div>
+                  <button onClick={onLogout} className="px-4 py-2 text-sm font-semibold bg-card-hover rounded-lg hover:opacity-80">Выйти</button>
+              </div>
+            ) : (
+               <div className="space-y-4">
+                  <p className="text-sm text-center text-text-secondary">{isLogin ? 'Войдите, чтобы синхронизировать данные' : 'Создайте аккаунт для синхронизации'}</p>
+                  {error && <p className="bg-red-500/20 text-red-500 p-3 rounded-md text-center text-sm">{error}</p>}
+                  <form onSubmit={handleAuthSubmit} className="space-y-4">
+                      <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full p-2.5 border-none rounded-lg bg-input-bg text-text-primary placeholder-text-secondary focus:ring-2 focus:ring-focus-ring"
+                          placeholder="Email"
+                      />
+                      <input
+                          type="password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full p-2.5 border-none rounded-lg bg-input-bg text-text-primary placeholder-text-secondary focus:ring-2 focus:ring-focus-ring"
+                          placeholder="Пароль"
+                      />
+                      <button
+                          type="submit"
+                          disabled={loading}
+                          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-btn-primary-text bg-btn-primary-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus-ring disabled:opacity-50"
+                      >
+                          {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Создать аккаунт')}
+                      </button>
+                  </form>
+                  <p className="text-center text-sm text-text-secondary">
+                    {isLogin ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
+                    <button onClick={() => { setIsLogin(!isLogin); setError(''); }} className="font-medium text-text-accent hover:underline ml-1">
+                        {isLogin ? 'Зарегистрируйтесь' : 'Войдите'}
+                    </button>
+                  </p>
+               </div>
+            )}
+          </div>
+
         </div>
         
-        <div className="p-4 mt-auto">
-          <button onClick={onClose} className="w-full px-4 py-3 bg-btn-primary-bg text-btn-primary-text font-semibold rounded-lg hover:opacity-90 transition-opacity">Закрыть</button>
+        <div className="p-4 mt-auto border-t border-border-primary">
+          <button onClick={onClose} className="w-full px-4 py-3 bg-card-hover text-text-secondary font-semibold rounded-lg hover:opacity-90 transition-opacity">Закрыть</button>
         </div>
       </div>
     </div>

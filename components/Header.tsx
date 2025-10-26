@@ -1,28 +1,21 @@
 import React, { useState } from 'react';
 import { formatCurrency, formatDateTime } from '../utils/formatters';
-import { Sun, Moon, Plus, Settings, LogOut } from 'lucide-react';
+import { Sun, Moon, Plus, Settings } from 'lucide-react';
 
 interface HeaderProps {
   totalBalance: number;
   toggleTheme: () => void;
   onAddTransaction: () => void;
   onOpenSettings: () => void;
-  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransaction, onOpenSettings, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransaction, onOpenSettings }) => {
   const [lastUpdated] = useState(new Date().getTime());
 
   return (
     <header className="px-4 pt-16 pb-8 text-center relative">
        <div className="absolute top-4 left-4">
-            <button
-              onClick={onLogout}
-              className="p-2 rounded-full text-text-secondary hover:bg-card-hover transition-colors"
-              aria-label="Выйти"
-            >
-              <LogOut size={20} />
-            </button>
+            {/* Placeholder for potential future left-side icons */}
        </div>
        <div className="absolute top-4 right-4 flex items-center gap-2">
             <button

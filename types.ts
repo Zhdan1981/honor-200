@@ -19,7 +19,7 @@ export interface Transaction {
 }
 
 export interface Category {
-  id: string;
+  id:string;
   name: string;
   group: string;
   balance: number;
@@ -27,6 +27,7 @@ export interface Category {
   // FIX: Allow style prop for category icons.
   icon: React.FC<{ className?: string; style?: React.CSSProperties }>;
   color: string;
+  order: number;
 }
 
 export interface NewTransactionData {
