@@ -10,11 +10,16 @@ import type { Category, NewTransactionData, Settings } from './types';
 import TransactionModal from './components/TransactionModal';
 import SettingsModal from './components/SettingsModal';
 import { themes } from './utils/themes';
+import AuthScreen from './screens/AuthScreen';
+import { auth } from './firebase';
+import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 
 type Tab = 'budget' | 'history' | 'charts';
 
 const App: React.FC = () => {
-  const budget = useBudget();
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const budget = useBudget(user?.uid);
   const [activeTab, setActiveTab] = useState<Tab>('budget');
   const [view, setView] = useState<'main' | 'detail' | 'category_charts'>('main');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -25,6 +30,14 @@ const App: React.FC = () => {
     bottomNavOpacity: 40,
     themeId: 'dark-ocean',
   });
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const savedSettings = localStorage.getItem('app_settings');
@@ -63,6 +76,10 @@ const App: React.FC = () => {
           return { ...prevSettings, themeId: newThemeId };
       });
   };
+  
+  const handleLogout = () => {
+      signOut(auth);
+  };
 
   const handleSelectCategory = (category: Category) => {
     setSelectedCategory(category);
@@ -90,13 +107,13 @@ const App: React.FC = () => {
   const renderMainView = () => {
       switch (activeTab) {
         case 'budget':
-          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} settings={settings} />;
+          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} onLogout={handleLogout} settings={settings} />;
         case 'history':
           return <HistoryScreen budgetHook={budget} settings={settings} />;
         case 'charts':
           return <GlobalChartsScreen budgetHook={budget} settings={settings} />;
         default:
-          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} settings={settings} />;
+          return <HomeScreen budgetHook={budget} onSelectCategory={handleSelectCategory} toggleTheme={toggleTheme} onAddTransaction={() => setIsModalOpen(true)} onOpenSettings={() => setIsSettingsModalOpen(true)} onLogout={handleLogout} settings={settings} />;
       }
   }
 
@@ -107,7 +124,6 @@ const App: React.FC = () => {
     
     if (selectedCategory) {
         const categoryTransactions = budget.transactions.filter(
-// FIX: Corrected a typo from `selected-category.id` to `selectedCategory.id` to fix filtering.
             t => t.categoryId === selectedCategory.id || t.fromCategoryId === selectedCategory.id
         );
         if (view === 'detail') {
@@ -133,16 +149,21 @@ const App: React.FC = () => {
         }
     }
     
-    // Fallback to main view
     setView('main');
     return renderMainView();
   };
   
-  return (
-    <div className="min-h-screen text-text-primary bg-bg-primary transition-colors duration-300">
-      <div 
-        className="max-w-screen-md mx-auto bg-bg-primary min-h-screen"
-      >
+  const renderApp = () => {
+    if (authLoading) {
+        return <div className="flex items-center justify-center min-h-screen text-text-secondary">Загрузка сессии...</div>;
+    }
+      
+    if (!user) {
+        return <AuthScreen />;
+    }
+      
+    return (
+      <>
         {renderContent()}
         {view === 'main' && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} opacity={settings.bottomNavOpacity} />}
         {isModalOpen && view === 'main' && (
@@ -160,6 +181,16 @@ const App: React.FC = () => {
           settings={settings}
           onSettingsChange={setSettings}
         />
+      </>
+    );
+  }
+  
+  return (
+    <div className="min-h-screen text-text-primary bg-bg-primary transition-colors duration-300">
+      <div 
+        className="max-w-screen-md mx-auto bg-bg-primary min-h-screen"
+      >
+        {renderApp()}
       </div>
     </div>
   );

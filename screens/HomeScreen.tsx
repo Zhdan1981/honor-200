@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from '../components/Header';
 import CategoryCard from '../components/CategoryCard';
 import useBudget from '../hooks/useBudget';
-import type { Category, NewTransactionData, Settings } from '../types';
-import UndoRedoToast from '../components/UndoRedoToast';
+import type { Category, Settings } from '../types';
 
 interface HomeScreenProps {
   budgetHook: ReturnType<typeof useBudget>;
@@ -11,64 +10,45 @@ interface HomeScreenProps {
   toggleTheme: () => void;
   onAddTransaction: () => void;
   onOpenSettings: () => void;
+  onLogout: () => void;
   settings: Settings;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ budgetHook, onSelectCategory, toggleTheme, onAddTransaction, onOpenSettings, settings }) => {
-  const { categories, totalBalance, isLoading, addTransactions, updateCategoryBalance, undo, redo, canUndo, canRedo } = budgetHook;
-  const [toastInfo, setToastInfo] = useState<{ message: string; type: 'undo' | 'redo' } | null>(null);
+const HomeScreen: React.FC<HomeScreenProps> = ({ budgetHook, onSelectCategory, toggleTheme, onAddTransaction, onOpenSettings, onLogout, settings }) => {
+  const { categories, totalBalance, isLoading, updateCategoryBalance } = budgetHook;
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Загрузка...</div>;
+    return <div className="flex items-center justify-center min-h-screen text-text-secondary">Синхронизация данных...</div>;
   }
-
-  const handleUndo = () => {
-    if (canUndo) {
-      undo();
-      setToastInfo({ message: 'Последнее действие отменено', type: 'undo' });
-    }
-  };
-
-  const handleRedo = () => {
-    if (canRedo) {
-      redo();
-      setToastInfo({ message: 'Действие возвращено', type: 'redo' });
-    }
-  };
 
   return (
     <div className="flex flex-col h-screen relative">
       <Header 
         totalBalance={totalBalance} 
         toggleTheme={toggleTheme}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        canUndo={canUndo}
-        canRedo={canRedo}
         onAddTransaction={onAddTransaction}
         onOpenSettings={onOpenSettings}
+        onLogout={onLogout}
       />
       <main className="flex-grow overflow-y-auto pb-20 no-scrollbar">
         <div className="flex flex-col pt-2">
-          {categories.map((cat) => (
-            <CategoryCard
-              key={cat.id}
-              category={cat}
-              onSelect={onSelectCategory}
-              onUpdateBalance={updateCategoryBalance}
-            />
-          ))}
+          {categories.length > 0 ? (
+              categories.map((cat) => (
+                <CategoryCard
+                  key={cat.id}
+                  category={cat}
+                  onSelect={onSelectCategory}
+                  onUpdateBalance={updateCategoryBalance}
+                />
+              ))
+          ) : (
+             <div className="text-center p-8 text-text-secondary">
+                <p>Категорий пока нет.</p>
+                <p className="text-sm mt-2">Приложение создает для вас набор категорий по умолчанию. Это может занять несколько секунд.</p>
+             </div>
+          )}
         </div>
       </main>
-
-      {toastInfo && (
-        <UndoRedoToast
-          message={toastInfo.message}
-          type={toastInfo.type}
-          onClose={() => setToastInfo(null)}
-          onAction={toastInfo.type === 'undo' ? handleRedo : handleUndo}
-        />
-      )}
     </div>
   );
 };

@@ -18,8 +18,10 @@ const navItems = [
 const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, opacity }) => {
   return (
     <footer 
-        className="fixed bottom-0 left-0 right-0 max-w-screen-md mx-auto bg-nav-bg border-t border-border-primary backdrop-blur-md"
-        style={{ '--tw-bg-opacity': opacity / 100 } as React.CSSProperties}
+        className="fixed bottom-0 left-0 right-0 max-w-screen-md mx-auto border-t border-border-primary backdrop-blur-md"
+        style={{ 
+            backgroundColor: `rgba(var(--color-nav-bg), ${opacity / 100})`
+        } as React.CSSProperties}
     >
       <div className="h-16 flex justify-around items-center">
         {navItems.map((item) => {

@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
 import { formatCurrency, formatDateTime } from '../utils/formatters';
-import { Sun, Moon, Plus, Settings } from 'lucide-react';
-import UndoRedoControls from './UndoRedoControls';
+import { Sun, Moon, Plus, Settings, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   totalBalance: number;
   toggleTheme: () => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
   onAddTransaction: () => void;
   onOpenSettings: () => void;
+  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onUndo, onRedo, canUndo, canRedo, onAddTransaction, onOpenSettings }) => {
+const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransaction, onOpenSettings, onLogout }) => {
   const [lastUpdated] = useState(new Date().getTime());
 
   return (
     <header className="px-4 pt-16 pb-8 text-center relative">
        <div className="absolute top-4 left-4">
-            <UndoRedoControls onUndo={onUndo} onRedo={onRedo} canUndo={canUndo} canRedo={canRedo} />
+            <button
+              onClick={onLogout}
+              className="p-2 rounded-full text-text-secondary hover:bg-card-hover transition-colors"
+              aria-label="Выйти"
+            >
+              <LogOut size={20} />
+            </button>
        </div>
        <div className="absolute top-4 right-4 flex items-center gap-2">
             <button
