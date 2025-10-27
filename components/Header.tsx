@@ -14,23 +14,20 @@ const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransac
 
   return (
     <header className="px-4 pt-16 pb-8 text-center relative">
-       <div className="absolute top-4 left-4">
-            {/* Placeholder for potential future left-side icons */}
-       </div>
-       <div className="absolute top-4 right-4 flex items-center gap-2">
-            <button
-              onClick={onAddTransaction}
-              className="p-2 rounded-full text-text-secondary hover:bg-card-hover transition-colors"
-              aria-label="Добавить транзакцию"
-            >
-              <Plus size={20} />
-            </button>
+       <div className="absolute top-4 left-4 flex items-center gap-2">
             <button
                 onClick={onOpenSettings}
                 className="p-2 rounded-full text-text-secondary hover:bg-card-hover transition-colors"
                 aria-label="Настройки"
             >
                 <Settings size={20} />
+            </button>
+            <button
+              onClick={onAddTransaction}
+              className="p-2 rounded-full text-text-secondary hover:bg-card-hover transition-colors"
+              aria-label="Добавить транзакцию"
+            >
+              <Plus size={20} />
             </button>
             <button
                 onClick={toggleTheme}
@@ -40,6 +37,9 @@ const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransac
                 <Sun size={20} className="hidden dark:block" />
                 <Moon size={20} className="block dark:hidden" />
             </button>
+       </div>
+       <div className="absolute top-4 right-4">
+            {/* Placeholder for potential future right-side icons */}
        </div>
       <p className="text-sm text-text-secondary">Общий баланс</p>
       <h2 className="text-4xl font-bold text-text-accent my-1">
