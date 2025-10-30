@@ -20,7 +20,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, opacity }
     <footer 
         className="fixed bottom-0 left-0 right-0 max-w-screen-md mx-auto border-t border-border-primary backdrop-blur-md"
         style={{ 
-            backgroundColor: `rgba(var(--color-nav-bg), ${opacity / 100})`
+            backgroundColor: `rgba(var(--color-nav-bg), ${opacity / 100})`,
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)'
         } as React.CSSProperties}
     >
       <div className="h-16 flex justify-around items-center">

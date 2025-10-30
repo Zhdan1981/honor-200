@@ -92,7 +92,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary">
-      <header className="px-4 py-3 sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-md">
+      <header className="px-4 sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-md" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)', paddingBottom: '0.75rem' }}>
         <div className="flex items-center text-text-primary">
           <button onClick={onBack} className="p-2 rounded-full hover:bg-card-hover">
             <ArrowLeft />
@@ -178,7 +178,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ category, onBack, budgetHoo
         </div>
       </main>
       
-      <footer className="p-4 grid grid-cols-2 gap-4">
+      <footer className="px-4 pt-4 grid grid-cols-2 gap-4" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
         <button onClick={handleAdd} className="w-full px-4 py-3 bg-btn-primary-bg text-btn-primary-text font-semibold rounded-lg hover:opacity-90 transition-opacity">Добавить</button>
         <button onClick={onBack} className="w-full px-4 py-3 bg-card-hover text-text-secondary font-semibold rounded-lg hover:opacity-90 transition-opacity">Закрыть</button>
       </footer>

@@ -13,8 +13,8 @@ const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransac
   const [lastUpdated] = useState(new Date().getTime());
 
   return (
-    <header className="px-4 pt-16 pb-8 text-center relative">
-       <div className="absolute top-4 left-4 flex items-center gap-2">
+    <header className="px-4 pb-8 text-center relative" style={{ paddingTop: 'calc(env(safe-area-inset-top, 1.5rem) + 3.5rem)' }}>
+       <div className="absolute right-4 flex items-center gap-2" style={{ top: 'calc(env(safe-area-inset-top, 0.5rem) + 0.5rem)' }}>
             <button
                 onClick={onOpenSettings}
                 className="p-2 rounded-full text-text-secondary hover:bg-card-hover transition-colors"
@@ -37,9 +37,6 @@ const Header: React.FC<HeaderProps> = ({ totalBalance, toggleTheme, onAddTransac
                 <Sun size={20} className="hidden dark:block" />
                 <Moon size={20} className="block dark:hidden" />
             </button>
-       </div>
-       <div className="absolute top-4 right-4">
-            {/* Placeholder for potential future right-side icons */}
        </div>
       <p className="text-sm text-text-secondary">Общий баланс</p>
       <h2 className="text-4xl font-bold text-text-accent my-1">

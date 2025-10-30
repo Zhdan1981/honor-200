@@ -66,7 +66,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ budgetHook, onSelectCategory, t
         onAddTransaction={onAddTransaction}
         onOpenSettings={onOpenSettings}
       />
-      <main className="flex-grow overflow-y-auto pb-20 no-scrollbar">
+      <main className="flex-grow overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
         <div className="flex flex-col pt-2">
           {localCategories.length > 0 ? (
               localCategories.map((cat, index) => (

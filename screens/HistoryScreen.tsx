@@ -80,7 +80,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ budgetHook, settings }) =
   
   return (
     <div className="flex flex-col h-screen bg-bg-primary">
-      <header className="px-4 py-5 sticky top-0 z-10 bg-card-primary/80 backdrop-blur-md border-b border-border-primary">
+      <header className="px-4 sticky top-0 z-10 bg-card-primary/80 backdrop-blur-md border-b border-border-primary" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.25rem)', paddingBottom: '1.25rem' }}>
         <h1 className="text-lg font-bold text-center text-text-primary mb-4">История транзакций</h1>
         <div className="flex items-center justify-center gap-4">
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ budgetHook, settings }) =
         </div>
       </header>
 
-      <main className="flex-grow overflow-y-auto pb-20 no-scrollbar">
+      <main className="flex-grow overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
         <div>
             {sortedTransactions.length > 0 ? sortedTransactions.map(renderTransactionItem) : <p className="text-center p-8 text-text-secondary">Нет транзакций</p>}
         </div>

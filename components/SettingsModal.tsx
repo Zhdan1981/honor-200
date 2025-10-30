@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Maximize, Minimize } from 'lucide-react';
 import type { Settings } from '../types';
 import { themes } from '../utils/themes';
 import { auth } from '../firebase';
@@ -20,6 +20,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -35,6 +48,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
       ...settings,
       themeId,
     });
+  };
+
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -105,6 +130,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                     </option>
                 ))}
             </select>
+          </div>
+          
+          <div>
+            <label className="block mb-2 text-sm font-medium text-text-secondary">
+                Режим экрана
+            </label>
+            <button
+              onClick={handleToggleFullscreen}
+              className="w-full flex items-center justify-center p-3 border-none rounded-lg bg-input-bg text-text-primary hover:bg-card-hover transition-colors"
+            >
+              {isFullscreen ? <Minimize size={16} className="mr-2" /> : <Maximize size={16} className="mr-2" />}
+              {isFullscreen ? 'Выйти из полноэкранного режима' : 'Во весь экран'}
+            </button>
           </div>
           
           <hr className="border-border-primary" />

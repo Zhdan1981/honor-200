@@ -93,11 +93,11 @@ const GlobalChartsScreen: React.FC<GlobalChartsScreenProps> = ({ budgetHook, set
   
   return (
     <div className="flex flex-col h-screen bg-bg-primary">
-      <header className="px-4 py-5 text-center sticky top-0 z-10 bg-card-primary/80 backdrop-blur-md border-b border-border-primary">
+      <header className="px-4 text-center sticky top-0 z-10 bg-card-primary/80 backdrop-blur-md border-b border-border-primary" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1.25rem)', paddingBottom: '1.25rem' }}>
         <h1 className="text-lg font-bold text-text-primary">Финансовый обзор</h1>
       </header>
 
-      <main className="flex-grow overflow-y-auto pb-20 p-4 no-scrollbar">
+      <main className="flex-grow overflow-y-auto p-4 no-scrollbar" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
         <div className="space-y-6">
             <div className="bg-card-primary p-4 rounded-xl shadow-md space-y-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

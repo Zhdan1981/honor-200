@@ -43,7 +43,7 @@ const CategoryChartsScreen: React.FC<CategoryChartsScreenProps> = ({ category, t
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary text-text-primary">
-      <header className="px-4 py-3 shadow-md sticky top-0 z-10" style={{ backgroundColor: category.color }}>
+      <header className="px-4 shadow-md sticky top-0 z-10" style={{ backgroundColor: category.color, paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)', paddingBottom: '0.75rem' }}>
         <div className="flex items-center text-white">
           <button onClick={onBack} className="p-2 rounded-full hover:bg-white/20">
             <ArrowLeft />
@@ -55,7 +55,7 @@ const CategoryChartsScreen: React.FC<CategoryChartsScreenProps> = ({ category, t
         </div>
       </header>
 
-      <main className="flex-grow overflow-y-auto no-scrollbar">
+      <main className="flex-grow overflow-y-auto no-scrollbar" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="space-y-8 p-4">
             <div className="grid grid-cols-2 gap-4">
                 <ChartStatCard icon={ArrowUpCircle} title="Всего поступлений" value={formatCurrency(categoryStats.inflows)} colorClass="text-green-400" />
