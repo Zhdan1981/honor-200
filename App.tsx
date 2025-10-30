@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import HomeScreen from './screens/HomeScreen';
-import DetailScreen from './screens/DetailScreen';
-import CategoryChartsScreen from './screens/CategoryChartsScreen';
-import HistoryScreen from './screens/HistoryScreen';
-import GlobalChartsScreen from './screens/GlobalChartsScreen';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import BottomNav from './components/BottomNav';
 import useBudget from './hooks/useBudget';
 import type { Category, NewTransactionData, Settings } from './types';
-import TransactionModal from './components/TransactionModal';
-import SettingsModal from './components/SettingsModal';
 import { themes } from './utils/themes';
 import { auth } from './firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
+import Loading from './components/Loading';
+
+// Lazy-load screens for code splitting
+const HomeScreen = lazy(() => import('./screens/HomeScreen'));
+const DetailScreen = lazy(() => import('./screens/DetailScreen'));
+const CategoryChartsScreen = lazy(() => import('./screens/CategoryChartsScreen'));
+const HistoryScreen = lazy(() => import('./screens/HistoryScreen'));
+const GlobalChartsScreen = lazy(() => import('./screens/GlobalChartsScreen'));
+
+// Lazy-load modals
+const TransactionModal = lazy(() => import('./components/TransactionModal'));
+const SettingsModal = lazy(() => import('./components/SettingsModal'));
+
 
 type Tab = 'budget' | 'history' | 'charts';
 
@@ -152,7 +158,7 @@ const App: React.FC = () => {
   
   const renderApp = () => {
     return (
-      <>
+      <Suspense fallback={<Loading />}>
         {renderContent()}
         {view === 'main' && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} opacity={settings.bottomNavOpacity} />}
         {isModalOpen && view === 'main' && (
@@ -164,15 +170,17 @@ const App: React.FC = () => {
                 defaultCategoryId={budget.categories[0]?.id || ''}
             />
         )}
-        <SettingsModal
-          isOpen={isSettingsModalOpen}
-          onClose={() => setIsSettingsModalOpen(false)}
-          settings={settings}
-          onSettingsChange={setSettings}
-          user={user}
-          onLogout={handleLogout}
-        />
-      </>
+        {isSettingsModalOpen && (
+          <SettingsModal
+            isOpen={isSettingsModalOpen}
+            onClose={() => setIsSettingsModalOpen(false)}
+            settings={settings}
+            onSettingsChange={setSettings}
+            user={user}
+            onLogout={handleLogout}
+          />
+        )}
+      </Suspense>
     );
   }
   
