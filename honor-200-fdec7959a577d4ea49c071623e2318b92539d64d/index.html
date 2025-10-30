@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Домашний бюджет</title>
+    <style>
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+      :root {
+        /* Default Light Theme (light-day) */
+        --color-background: 243, 244, 246;
+        --color-card: 255, 255, 255;
+        --color-card-hover: 229, 231, 235;
+        --color-text-primary: 17, 24, 39;
+        --color-text-secondary: 107, 114, 128;
+        --color-text-accent: 16, 185, 129;
+        --color-border: 209, 213, 219;
+        --color-input-bg: 229, 231, 235;
+        --color-focus-ring: 37, 99, 235;
+        --color-button-primary-bg: 37, 99, 235;
+        --color-button-primary-text: 255, 255, 255;
+        --color-nav-bg: 255, 255, 255;
+        --color-nav-active: 37, 99, 235;
+        --color-nav-inactive: 107, 114, 128;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'bg-primary': 'rgb(var(--color-background))',
+              'card-primary': 'rgb(var(--color-card))',
+              'card-hover': 'rgb(var(--color-card-hover))',
+              'text-primary': 'rgb(var(--color-text-primary))',
+              'text-secondary': 'rgb(var(--color-text-secondary))',
+              'text-accent': 'rgb(var(--color-text-accent))',
+              'border-primary': 'rgb(var(--color-border))',
+              'input-bg': 'rgb(var(--color-input-bg))',
+              'focus-ring': 'rgb(var(--color-focus-ring))',
+              'btn-primary-bg': 'rgb(var(--color-button-primary-bg))',
+              'btn-primary-text': 'rgb(var(--color-button-primary-text))',
+              'nav-bg': 'rgb(var(--color-nav-bg))',
+              'nav-active': 'rgb(var(--color-nav-active))',
+              'nav-inactive': 'rgb(var(--color-nav-inactive))',
+            },
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.547.0",
+    "firebase/": "https://www.gstatic.com/firebasejs/10.12.2/",
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
