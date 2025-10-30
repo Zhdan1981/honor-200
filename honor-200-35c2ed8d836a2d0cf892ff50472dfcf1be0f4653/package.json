@@ -13,10 +13,7 @@
     "recharts": "^3.3.0",
     "react-dom": "^19.2.0",
     "lucide-react": "^0.547.0",
-    "firebase": "latest",
-    "path": "^0.12.7",
-    "vite": "^7.1.12",
-    "@vitejs/plugin-react": "^5.1.0"
+    "firebase": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
